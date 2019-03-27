@@ -1,0 +1,17 @@
+{
+  "name": "tsunamy",
+  "version": "0.0.1",
+  "description": "A new typesript framework",
+  "keywords": [
+    "typescript",
+    "nodejs",
+    "nodets",
+    "framework"
+  ],
+  "author": "Sandy Cnigniet <sandy.cnigniet@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apokalupsis"
+  }
+}
