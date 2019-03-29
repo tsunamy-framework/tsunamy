@@ -3,5 +3,5 @@ export * from './decorators';
 export { Class } from './types/Class';
 export { Configuration } from './types/Configuration';
 
-export { server } from './server';
+export { Server } from './Server';
 export { Console } from './Console';

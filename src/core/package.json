@@ -5,12 +5,18 @@
   "main": "src/index.ts",
   "types": "src/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jasmine-ts --config=jasmine.json",
+    "testWithCoverage": "nyc -r lcov -e .ts -x \"*.spec.ts\" jasmine-ts --config=jasmine.json && nyc report",
     "start": "npm run build:live",
     "build": "tsc -p .",
     "build:live": "tsc --watch"
   },
-  "keywords": [],
+  "keywords": [
+    "typescript",
+    "nodejs",
+    "nodets",
+    "framework"
+  ],
   "author": "Sandy Cnigniet <sandy.cnigniet@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -18,9 +24,13 @@
     "url": "https://github.com/apokalupsis"
   },
   "devDependencies": {
+    "@types/jasmine": "^3.3.12",
     "@types/node": "^11.11.6",
+    "jasmine": "^3.3.1",
+    "jasmine-ts": "^0.3.0",
     "nodemon": "^1.18.10",
     "ts-node": "^8.0.3",
+    "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
   },
   "engines": {

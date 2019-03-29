@@ -1,26 +1,26 @@
 import { Configuration } from './types/Configuration';
 import { Class } from './types/Class';
-import { router } from './router';
+import { Router } from './Router';
 import { Console } from './Console';
 import fs from 'fs';
 
-var MimeTypes: any = {
-    'html': 'text/html',
-    'jpeg': 'image/jpeg',
-    'jpg': 'image/jpeg',
-    'png': 'image/png',
-    'js': 'text/javascript',
-    'css': 'text/css'};
+const MimeTypes: any = {
+    html: 'text/html',
+    jpeg: 'image/jpeg',
+    jpg: 'image/jpeg',
+    png: 'image/png',
+    js: 'text/javascript',
+    css: 'text/css'};
 
-export class server {
+export class Server {
 
   currentServer: any;
 
-  async bootstrapModule (module : Class, CONFIGURATION: Configuration) {
+  async bootstrapModule(module: Class, CONFIGURATION: Configuration) {
 
-    router.setConfig(CONFIGURATION);
+    Router.setConfig(CONFIGURATION);
     let http: any;
-    if(CONFIGURATION.https) {
+    if (CONFIGURATION.https) {
       http = await import('https');
       Console.Err('HTTPS not supported now.');
     } else {
@@ -28,8 +28,7 @@ export class server {
     }
 
     this.currentServer = http.createServer((req: any, res: any) => {
-      new module();
-      let bodyChunk: any[]= [];
+      const bodyChunk: Uint8Array[] = [];
       let body: any;
       req.on('error', (err: any) => {
         console.error(err);
@@ -37,46 +36,46 @@ export class server {
         bodyChunk.push(chunk);
       }).on('end', () => {
         body = JSON.parse(Buffer.concat(bodyChunk).toString() || '{}');
-        let route = router.resolve(req.url, req.method);
-        if(!route.error){
-          if(route.isStaticFile) {// If static files
-            if(req.url === '/'){// default index.html
-              req.url= '/index.html';
+        const route = Router.resolve(req.url, req.method);
+        if (!route.error) {
+          if (route.isStaticFile) {// If static files
+            if (req.url === '/') {// default index.html
+              req.url = '/index.html';
             }
-            var mimeType:string = MimeTypes[req.url.split(".")[1]];
+            const mimeType: string = MimeTypes[req.url.split('.')[1]];
             res.writeHead(200, mimeType);
 
-            var filename = CONFIGURATION.projectDirectory + '/public' +req.url;
-            var readStream = fs.createReadStream(filename);
+            const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
+            const readStream = fs.createReadStream(filename);
 
-            readStream.on('open', function () {
+            readStream.on('open', () => {
               readStream.pipe(res);
             });
-            readStream.on('error', function(err:any) {
+            readStream.on('error', (err: any) => {
               res.end(err);
             });
             return;
           }
           // call function
-          let result = route.function(req, res, route.urlParam, route.queryParam, body);
-          //get le retour et gerer les errors et creer resoponse
-          if(result.error) {
+          const result = route.function(req, res, route.urlParam, route.queryParam, body);
+          // get le retour et gerer les errors et creer resoponse
+          if (result.error) {
             backError(route.error, res);
           } else {
-            if(result.code){
+            if (result.code) {
               res.statusCode = result.code;
             } else {
               res.statusCode = 200;
             }
-            if(typeof result === "string" ) {
+            if (typeof result === 'string' ) {
               res.setHeader('Content-Type', 'text/plain');
               res.end(result);
             } else {
-              if(typeof result === "object" ) {
+              if (typeof result === 'object' ) {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(result));
               } else {
-                res.write('retour type not found')
+                res.write('retour type not found');
                 backError(501, res);
               }
             }
@@ -87,12 +86,12 @@ export class server {
       });
     });
 
-    function backError(error : number, res: any): void {
-        if(error === 404) {
+    function backError(error: number, res: any): void {
+        if (error === 404) {
           res.statusCode = 404;
           res.end('404 Route Not Found');
         }
-        if(error === 500) {
+        if (error === 500) {
           res.statusCode = 500;
           res.end('500 Server Internal error.');
         }
@@ -103,5 +102,6 @@ export class server {
       Console.Info(`Tsunamy server running at http://${CONFIGURATION.hostname}:${CONFIGURATION.port}/`);
     });
 
-  };
+  }
+
 }

@@ -8,8 +8,8 @@ export class Injector {
   private map = new Map();
 
   resolve<T>(target: Type<any>): T {
-    let tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-    let injections = tokens.map((token: any) => this.resolve<any>(token));
+    const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
+    const injections = tokens.map((token: any) => this.resolve<any>(token));
     const classInstance = this.map.get(target);
     if (classInstance) {
       return classInstance;
@@ -19,4 +19,4 @@ export class Injector {
     return newInstance;
   }
 
-};
+}

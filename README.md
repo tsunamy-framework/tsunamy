@@ -1,11 +1,11 @@
+[![npm version](https://badge.fury.io/js/tsunamy.svg)](//npmjs.com/package/tsunamy)
 # Tsunamy framework
 
 a node.ts framework, Alpha version.
+Make easy to build a REST API server and serve a SPA
 
 ## Quick Start
-go to [link](https://github.com/apokalupsis/tsunamyExemple) and download the project.
-write your new routes in `src/api/app.controller.ts`
-start with `npm run start` for start with reload automatically on files change.
+go to [link](https://github.com/apokalupsis/tsunamyExemple) and download the project. Write your new routes in `src/api/app.controller.ts`, run `npm run start`, it will reload automatically on file change.
 
 ## Features
 
@@ -17,13 +17,12 @@ src
   |-public (contain all the public files)
   main.ts (bootsrap the module)
 ```
-if the request start with `/api` the app check the route in controller
-if the request don't start with `/api` the app will serve the static files on the public folder.
+if the request starts with `/api` the app checks the routes in the controller, otherwise, the app serves the static files on the public folder.
 
-support `GET` `POST` `PUT` `DELETE` method with parameter in route, query, body.
+supports methods: `GET`, `POST`, `PUT` and `DELETE` with parameters in the route, query or body.
 
 Exemple:
-GET `api/custom/url/route/{id}?queryvar=blabla`
+GET `api/custom/url/route/4?queryvar=blabla`
 in the controller
 ```typescript
 @RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})

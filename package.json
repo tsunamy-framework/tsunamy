@@ -1,6 +1,6 @@
 {
   "name": "tsunamy",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A new typesript framework",
   "keywords": [
     "typescript",
@@ -13,5 +13,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/apokalupsis"
+  },
+  "scripts": {
+    "test": "cd src/core && npm run test",
+    "start": "cd src/core && npm run build:live",
+    "build": "cd src/core && tsc -p .",
+    "install": "cd src/core && npm install"
   }
 }
