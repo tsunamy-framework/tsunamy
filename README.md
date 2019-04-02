@@ -31,6 +31,13 @@ customFunction(@PathParam('id') id: number, @QueryParam('queryvar') queryvar: st
 }
 ```
 
+## https
+change to https : true in the CONFIGURATION file
+and add the two file to your projet
+`/certificate/key.pem`
+`/certificate/certificate.pem`
+be careful this files are ignored by git (not commit)
+
 Project link
 [here](https://github.com/apokalupsis/tsunamy)
 
