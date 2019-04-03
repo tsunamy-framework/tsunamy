@@ -1,6 +1,6 @@
 {
   "name": "tsunamy",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A new typesript framework",
   "keywords": [
     "typescript",
@@ -18,8 +18,12 @@
     "test-dev": "cd src/core && npm run test",
     "start-dev": "cd src/core && npm run build:live",
     "install-dev": "cd src/core && npm install",
-    "build-dev": "cd src/core && tsc -p .",
-    "link": "npm link",
-    "unlink": ""
+    "build-dev": "rm -rf core/* && cd src/core && tsc -p .",
+    "link-init": "npm link",
+    "link": "cd ../frameworkts/node_modules && npm link tsunamy",
+    "unlink": "cd ../frameworkts/node_modules && npm unlink tsunamy && cd .. && npm i tsunamy",
+    "publish-patch": "npm run build-dev && npm --no-git-tag-version version patch && npm publish",
+    "publish-minor": "npm run build-dev && npm version minor && npm publish",
+    "publish-major": "npm run build-dev && npm version major && npm publish"
   }
 }
