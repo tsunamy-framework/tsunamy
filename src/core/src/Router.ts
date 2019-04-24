@@ -4,6 +4,7 @@ import { Console } from './Console';
 interface RouteObj {
   path: string[];
   function: any;
+  controllerInstance: any
 }
 const globalRouteList: Map<string, RouteObj[]> =
 new Map().set('GET', []).set('POST', []).set('PUT', []).set('DELETE', []);
@@ -11,16 +12,69 @@ let CONFIGURATION: any;
 
 export class Router {
 
+  static executeRouteFunction(req: any, res: any, urlParam: Map<string, any>, urlQueryParam: Map<string, any>, bodyParam: any, functionVar: any, controllerInstance: any ) {
+    // call the function with good arguments
+    const pathParam = Reflect.getMetadata('PathParam', controllerInstance ) || [];
+    const queryParam = Reflect.getMetadata('QueryParam', controllerInstance ) || [];
+    const body = Reflect.getMetadata('Body', controllerInstance ) || [];
+    const guards = Reflect.getMetadata('Guards', controllerInstance ) || [];
+
+    // calculate array size
+    let arrayLength = urlParam.size;
+    arrayLength = arrayLength + urlQueryParam.size;
+    if (bodyParam) {
+        arrayLength ++;
+    }
+
+    // create and feed the array
+    const varParameters = new Array<any>(arrayLength);
+    pathParam.map( (param: any) => {
+    if (param.functionName === functionVar) {
+      varParameters[param.index] = urlParam.get(param.key);
+    }
+    });
+    queryParam.map( (param: any) => {
+        if (param.functionName === functionVar) {
+            varParameters[param.index] = urlQueryParam.get(param.key);
+        }
+    });
+    body.map( (param: any) => {
+        if (param.functionName === functionVar) {
+            varParameters[param.index] = bodyParam;
+        }
+    });
+
+    //execute guards functions if one return false return 403
+    let forbidden = false;
+    guards.map( (param: any) => {
+        if (param.functionName === functionVar) {
+            param.guardList.forEach( (functionVar: any) => {
+                let canPass = functionVar(req);
+                if(!canPass) {
+                    forbidden = true;
+                }
+            });
+        }
+    });
+
+    if (forbidden) {
+        return {error: 403, message: 'forbidden'};
+    } else {
+        // call function
+        return controllerInstance[functionVar].apply(controllerInstance, varParameters);
+    }
+  };
+
   static setConfig(newCONFIGURATION: any) {
     CONFIGURATION = newCONFIGURATION;
   }
 
-  static add(url: string, method: string, f: any): any {
+  static add(url: string, method: string, functionVar: any, controllerInstance: any): any {
     const newList: RouteObj[] = globalRouteList.get(method) || [];
     if (url.startsWith('/')) {
       url = url.substr(1);
     }
-    newList.push({ path: ['api', ...url.split('/')], function: f});
+    newList.push({ path: ['api', ...url.split('/')], function: functionVar, controllerInstance: controllerInstance});
     globalRouteList.set(method, newList );
   }
 
@@ -40,6 +94,7 @@ export class Router {
           if ( this.pathMatch(routeList[n].path, arrayUrl)) { // if path match get the params
             return {
               function: routeList[n].function,
+              controllerInstance: routeList[n].controllerInstance,
               urlParam: this.extractVarFromPath(routeList[n].path, arrayUrl),
               queryParam: this.extractVarFromQuery(arrayQuery[1])
             };
@@ -47,7 +102,7 @@ export class Router {
           n++;
         } while (n < routeList.length);
         Console.Warn('route not found');
-        return { error: 404};
+        return { error: 404 };
       } else { // if Static files
         return {
           isStaticFile: true,
@@ -56,7 +111,7 @@ export class Router {
       }
     } catch (e) {
       Console.Err('Resolve error, ' + e);
-      return { error: 500};
+      return { error: 500 };
     }
   }
 

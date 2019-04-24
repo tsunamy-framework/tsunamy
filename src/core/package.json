@@ -22,19 +22,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/apokalupsis"
-  },
-  "devDependencies": {
-    "@types/jasmine": "^3.3.12",
-    "@types/node": "^11.13.0",
-    "jasmine": "^3.3.1",
-    "jasmine-ts": "^0.3.0",
-    "nodemon": "^1.18.10",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.15.0",
-    "reflect-metadata": "^0.1.13",
-    "typescript": "^3.4.1"
-  },
-  "engines": {
-    "node": ">= 8.9.0"
   }
 }

@@ -18,12 +18,26 @@
     "test-dev": "cd src/core && npm run test",
     "start-dev": "cd src/core && npm run build:live",
     "install-dev": "cd src/core && npm install",
-    "build-dev": "rm -rf core/* && cd src/core && tsc -p .",
+    "build-dev": "rm -rf core/* && cd src/core && npm run build",
     "link-init": "npm link",
-    "link": "cd ../frameworkts/node_modules && npm link tsunamy",
-    "unlink": "cd ../frameworkts/node_modules && npm unlink tsunamy && cd .. && npm i tsunamy",
+    "link": "cd ../tsunamyExemple/node_modules && npm link tsunamy",
+    "unlink": "cd ../tsunamyExemple/node_modules && npm unlink tsunamy && cd .. && npm i tsunamy",
     "publish-patch": "npm run build-dev && npm --no-git-tag-version version patch && npm publish",
     "publish-minor": "npm run build-dev && npm version minor && npm publish",
     "publish-major": "npm run build-dev && npm version major && npm publish"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.3.12",
+    "@types/node": "^11.13.0",
+    "jasmine": "^3.3.1",
+    "jasmine-ts": "^0.3.0",
+    "nodemon": "^1.18.10",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.15.0",
+    "reflect-metadata": "^0.1.13",
+    "typescript": "^3.4.1"
+  },
+  "engines": {
+    "node": ">= 8.9.0"
   }
 }

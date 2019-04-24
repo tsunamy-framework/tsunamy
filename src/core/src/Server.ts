@@ -37,23 +37,31 @@ export class Server {
             return;
           }
           // call function
-          const result = route.function(req, res, route.urlParam, route.queryParam, body);
+          const result = Router.executeRouteFunction(req, res, route.urlParam, route.queryParam, body, route.function, route.controllerInstance);
+          backError(result, res);
           serveResponse(result, route, res);
           return;
         } else {
-          backError(route.error, res);
+          backError(route, res);
         }
       });
     }
 
-    function backError(error: number, res: any): void {
+    function backError(route: any, res: any): void {
+      let error = route.error;
       if (error === 404) {
         res.statusCode = 404;
         res.end('404 Route Not Found');
-      }
-      if (error === 500) {
-        res.statusCode = 500;
-        res.end('500 Server Internal error.');
+      } else {
+          if (error === 500) {
+              res.statusCode = 500;
+              res.end('500 Server Internal error.');
+          }  else {
+            if(typeof error === "number" ) { // TODO switch
+              res.statusCode = error;
+              res.end(error + ' ' + route.message);
+            }
+          }
       }
     }
 
@@ -64,19 +72,25 @@ export class Server {
       const mimeType: string = MimeTypes[req.url.split('.')[1]];
       res.writeHead(200, mimeType);
       const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
-      const readStream = fs.createReadStream(filename);
+      let readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
         readStream.pipe(res);
       });
       readStream.on('error', (err: any) => {
-        res.end(err);
+          if (err.code === 'ENOENT') {
+              res.statusCode = 404;
+              res.end('404 File not found');
+          } else {
+              res.statusCode = 500;
+              res.end('error ', err.Error);
+          }
       });
     }
 
     function serveResponse(result: any, route: any, res: any): void {
     // get le retour et gerer les errors et creer resoponse
     if (result.error) {
-      backError(route.error, res);
+      backError(route, res);
     } else {
       if (result.code) {
         res.statusCode = result.code;
@@ -94,7 +108,7 @@ export class Server {
           return;
         } else {
           Console.Warn('return type not found');
-          backError(501, res);
+          backError({ error: 501, message: 'return type not found' }, res);
         }
       }
     }
