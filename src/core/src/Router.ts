@@ -4,7 +4,7 @@ import { Console } from './Console';
 interface RouteObj {
   path: string[];
   function: any;
-  controllerInstance: any
+  controllerInstance: any;
 }
 const globalRouteList: Map<string, RouteObj[]> =
 new Map().set('GET', []).set('POST', []).set('PUT', []).set('DELETE', []);
@@ -12,12 +12,20 @@ let CONFIGURATION: any;
 
 export class Router {
 
-  static executeRouteFunction(req: any, res: any, urlParam: Map<string, any>, urlQueryParam: Map<string, any>, bodyParam: any, functionVar: any, controllerInstance: any ) {
+  static executeRouteFunction(
+    req: any,
+    res: any,
+    urlParam: Map<string, any>,
+    urlQueryParam: Map<string, any>,
+    bodyParam: any,
+    functionVar: any,
+    controllerInstance: any ) {
     // call the function with good arguments
     const pathParam = Reflect.getMetadata('PathParam', controllerInstance ) || [];
     const queryParam = Reflect.getMetadata('QueryParam', controllerInstance ) || [];
     const body = Reflect.getMetadata('Body', controllerInstance ) || [];
     const guards = Reflect.getMetadata('Guards', controllerInstance ) || [];
+    const response = Reflect.getMetadata('Response', controllerInstance ) || [];
 
     // calculate array size
     let arrayLength = urlParam.size;
@@ -44,13 +52,19 @@ export class Router {
         }
     });
 
-    //execute guards functions if one return false return 403
+    response.map( (param: any) => {
+        if (param.functionName === functionVar) {
+            varParameters[param.index] = res;
+        }
+    });
+
+    // execute guards functions if one return false return 403
     let forbidden = false;
     guards.map( (param: any) => {
         if (param.functionName === functionVar) {
-            param.guardList.forEach( (functionVar: any) => {
-                let canPass = functionVar(req);
-                if(!canPass) {
+            param.guardList.forEach( (functionVar2: any) => {
+                const canPass = functionVar2(req);
+                if (!canPass) {
                     forbidden = true;
                 }
             });
@@ -63,7 +77,7 @@ export class Router {
         // call function
         return controllerInstance[functionVar].apply(controllerInstance, varParameters);
     }
-  };
+  }
 
   static setConfig(newCONFIGURATION: any) {
     CONFIGURATION = newCONFIGURATION;
@@ -74,7 +88,7 @@ export class Router {
     if (url.startsWith('/')) {
       url = url.substr(1);
     }
-    newList.push({ path: ['api', ...url.split('/')], function: functionVar, controllerInstance: controllerInstance});
+    newList.push({ path: ['api', ...url.split('/')], function: functionVar, controllerInstance});
     globalRouteList.set(method, newList );
   }
 

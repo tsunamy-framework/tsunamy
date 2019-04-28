@@ -6,3 +6,4 @@ export { RequestMapping } from './RequestMapping';
 export { PathParam } from './PathParam';
 export { QueryParam } from './QueryParam';
 export { Body } from './Body';
+export { Response } from './Response';

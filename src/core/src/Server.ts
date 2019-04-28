@@ -37,7 +37,14 @@ export class Server {
             return;
           }
           // call function
-          const result = Router.executeRouteFunction(req, res, route.urlParam, route.queryParam, body, route.function, route.controllerInstance);
+          const result = Router.executeRouteFunction(
+            req,
+            res,
+            route.urlParam,
+            route.queryParam,
+            body,
+            route.function,
+            route.controllerInstance);
           backError(result, res);
           serveResponse(result, route, res);
           return;
@@ -48,7 +55,7 @@ export class Server {
     }
 
     function backError(route: any, res: any): void {
-      let error = route.error;
+      const error = route.error;
       if (error === 404) {
         res.statusCode = 404;
         res.end('404 Route Not Found');
@@ -57,7 +64,7 @@ export class Server {
               res.statusCode = 500;
               res.end('500 Server Internal error.');
           }  else {
-            if(typeof error === "number" ) { // TODO switch
+            if (typeof error === 'number' ) { // TODO switch
               res.statusCode = error;
               res.end(error + ' ' + route.message);
             }
@@ -72,7 +79,7 @@ export class Server {
       const mimeType: string = MimeTypes[req.url.split('.')[1]];
       res.writeHead(200, mimeType);
       const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
-      let readStream = fs.createReadStream(filename);
+      const readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
         readStream.pipe(res);
       });
