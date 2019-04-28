@@ -31,6 +31,38 @@ customFunction(@PathParam('id') id: number, @QueryParam('queryvar') queryvar: st
 }
 ```
 
+Function can have this parameters :
+@PathParam('name')
+@QueryParam('name')
+@Body()
+@Response()
+
+## Guards
+
+You can use Guards annotation for do some process fefore the fonction (exemple secure route).
+
+```typescript
+function isAdmin(request){ return true; }
+
+@RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})
+@Guards(isAdmin)
+customFunction(@PathParam('id') id: number, @QueryParam('queryvar') queryvar: string) {
+  return queryvar + id;
+}
+```
+
+## Response
+
+You can change the response manually, in the nodejs way.
+
+```typescript
+@RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})
+customFunction(@Response() res: any) {
+  res.setHeader('test', 'testValue')
+  return '';
+}
+```
+
 ## https
 change to https : true in the CONFIGURATION file
 and add the two file to your projet
