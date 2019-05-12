@@ -20,62 +20,67 @@ export class Router {
     bodyParam: any,
     functionVar: any,
     controllerInstance: any ) {
-    // call the function with good arguments
-    const pathParam = Reflect.getMetadata('PathParam', controllerInstance ) || [];
-    const queryParam = Reflect.getMetadata('QueryParam', controllerInstance ) || [];
-    const body = Reflect.getMetadata('Body', controllerInstance ) || [];
-    const guards = Reflect.getMetadata('Guards', controllerInstance ) || [];
-    const response = Reflect.getMetadata('Response', controllerInstance ) || [];
+    try {
+      // call the function with good arguments
+      const pathParam = Reflect.getMetadata('PathParam', controllerInstance ) || [];
+      const queryParam = Reflect.getMetadata('QueryParam', controllerInstance ) || [];
+      const body = Reflect.getMetadata('Body', controllerInstance ) || [];
+      const guards = Reflect.getMetadata('Guards', controllerInstance ) || [];
+      const response = Reflect.getMetadata('Response', controllerInstance ) || [];
 
-    // calculate array size
-    let arrayLength = urlParam.size;
-    arrayLength = arrayLength + urlQueryParam.size;
-    if (bodyParam) {
-        arrayLength ++;
-    }
+      // calculate array size
+      let arrayLength = urlParam.size;
+      arrayLength = arrayLength + urlQueryParam.size;
+      if (bodyParam) {
+          arrayLength ++;
+      }
 
-    // create and feed the array
-    const varParameters = new Array<any>(arrayLength);
-    pathParam.map( (param: any) => {
-    if (param.functionName === functionVar) {
-      varParameters[param.index] = urlParam.get(param.key);
-    }
-    });
-    queryParam.map( (param: any) => {
-        if (param.functionName === functionVar) {
-            varParameters[param.index] = urlQueryParam.get(param.key);
-        }
-    });
-    body.map( (param: any) => {
-        if (param.functionName === functionVar) {
-            varParameters[param.index] = bodyParam;
-        }
-    });
+      // create and feed the array
+      const varParameters = new Array<any>(arrayLength);
+      pathParam.map( (param: any) => {
+      if (param.functionName === functionVar) {
+        varParameters[param.index] = urlParam.get(param.key);
+      }
+      });
+      queryParam.map( (param: any) => {
+          if (param.functionName === functionVar) {
+              varParameters[param.index] = urlQueryParam.get(param.key);
+          }
+      });
+      body.map( (param: any) => {
+          if (param.functionName === functionVar) {
+              varParameters[param.index] = bodyParam;
+          }
+      });
 
-    response.map( (param: any) => {
-        if (param.functionName === functionVar) {
-            varParameters[param.index] = res;
-        }
-    });
+      response.map( (param: any) => {
+          if (param.functionName === functionVar) {
+              varParameters[param.index] = res;
+          }
+      });
 
-    // execute guards functions if one return false return 403
-    let forbidden = false;
-    guards.map( (param: any) => {
-        if (param.functionName === functionVar) {
-            param.guardList.forEach( (functionVar2: any) => {
-                const canPass = functionVar2(req);
-                if (!canPass) {
-                    forbidden = true;
-                }
-            });
-        }
-    });
+      // execute guards functions if one return false return 403
+      let forbidden = false;
+      guards.map( (param: any) => {
+          if (param.functionName === functionVar) {
+              param.guardList.forEach( (functionVar2: any) => {
+                  const canPass = functionVar2(req);
+                  if (!canPass) {
+                      forbidden = true;
+                  }
+              });
+          }
+      });
 
-    if (forbidden) {
-        return {error: 403, message: 'forbidden'};
-    } else {
-        // call function
-        return controllerInstance[functionVar].apply(controllerInstance, varParameters);
+      if (forbidden) {
+          return {error: 403, message: 'forbidden'};
+      } else {
+          // call function
+          return controllerInstance[functionVar].apply(controllerInstance, varParameters);
+      }
+    } catch (e) {
+      Console.Err('Execute route function, ' + e);
+      return { error: 500 };
     }
   }
 
