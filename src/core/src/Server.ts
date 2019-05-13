@@ -28,7 +28,7 @@ export class Server {
         console.error(err);
       }).on('data', (chunk: any) => {
         bodyChunk.push(chunk);
-      }).on('end', () => {
+      }).on('end', async () => {
         body = JSON.parse(Buffer.concat(bodyChunk).toString() || '{}');
         const route = Router.resolve(req.url, req.method);
         if (!route.error) {
@@ -37,7 +37,7 @@ export class Server {
             return;
           }
           // call function
-          const result = Router.executeRouteFunction(
+          const result = await Router.executeRouteFunction(
             req,
             res,
             route.urlParam,
