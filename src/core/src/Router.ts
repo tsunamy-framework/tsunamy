@@ -73,7 +73,7 @@ export class Router {
       });
 
       if (forbidden) {
-          return {error: 403, message: 'forbidden'};
+          return { error: 403, message: 'Forbidden' };
       } else {
           // call function
           return controllerInstance[functionVar].apply(controllerInstance, varParameters);
@@ -120,7 +120,7 @@ export class Router {
           }
           n++;
         } while (n < routeList.length);
-        Console.Warn('route not found');
+        Console.Warn('Route not found');
         return { error: 404 };
       } else { // if Static files
         return {
