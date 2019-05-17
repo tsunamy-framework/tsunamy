@@ -56,19 +56,137 @@ export class Server {
 
     function backError(route: any, res: any): void {
       const error = route.error;
-      if (error === 404) {
-        res.statusCode = 404;
-        res.end('404 Route Not Found');
+      if (route.message) {
+        if (typeof error === 'number' ) {
+          res.statusCode = error;
+          res.end(error + ' ' + route.message);
+        } else {
+          Console.Err('Status code type is incorrect');
+          res.statusCode = 500;
+          res.end('500 Server Internal error.');
+        }
       } else {
-          if (error === 500) {
-              res.statusCode = 500;
-              res.end('500 Server Internal error.');
-          }  else {
-            if (typeof error === 'number' ) { // TODO switch
-              res.statusCode = error;
-              res.end(error + ' ' + route.message);
-            }
-          }
+        switch (error) {
+          case 400:
+            res.statusCode = 400;
+            res.end('400 Bad Request');
+            break;
+          case 401:
+            res.statusCode = 401;
+            res.end('401 Unauthorized');
+            break;
+          case 403:
+            res.statusCode = 403;
+            res.end('403 Forbidden');
+            break;
+          case 404:
+            res.statusCode = 404;
+            res.end('404 Route Not Found');
+            break;
+          case 405:
+            res.statusCode = 405;
+            res.end('405 Method Not Allowed');
+            break;
+          case 406:
+            res.statusCode = 406;
+            res.end('406 Not Acceptable');
+            break;
+          case 407:
+            res.statusCode = 407;
+            res.end('407 Proxy Authentication Required');
+            break;
+          case 408:
+            res.statusCode = 408;
+            res.end('408 Request Timeout');
+            break;
+          case 409:
+            res.statusCode = 409;
+            res.end('409 Conflict');
+            break;
+          case 410:
+            res.statusCode = 410;
+            res.end('410 Gone');
+            break;
+          case 411:
+            res.statusCode = 411;
+            res.end('411 Length Required');
+            break;
+          case 412:
+            res.statusCode = 412;
+            res.end('412 Precondition Failed');
+            break;
+          case 413:
+            res.statusCode = 413;
+            res.end('413 Payload Too Large');
+            break;
+          case 415:
+            res.statusCode = 415;
+            res.end('415 Unsupported Media Type');
+            break;
+          case 416:
+            res.statusCode = 416;
+            res.end('416 Requested Range Not Satisfiable');
+            break;
+          case 417:
+            res.statusCode = 417;
+            res.end('417 Expectation Failed');
+            break;
+          case 422:
+            res.statusCode = 422;
+            res.end('422 Unprocessable Entity ');
+            break;
+          case 426:
+            res.statusCode = 426;
+            res.end('426 Upgrade Required');
+            break;
+          case 428:
+            res.statusCode = 428;
+            res.end('428 Precondition Required');
+            break;
+          case 429:
+            res.statusCode = 429;
+            res.end('429 Too Many Requests');
+            break;
+          case 431:
+            res.statusCode = 431;
+            res.end('431 Request Header Fields Too Large');
+            break;
+          case 451:
+            res.statusCode = 451;
+            res.end('451 Unavailable For Legal Reasons');
+            break;
+          case 500:
+            res.statusCode = 500;
+            res.end('500 Internal Server Error');
+            break;
+          case 501:
+            res.statusCode = 501;
+            res.end('501 Not Implemented');
+            break;
+          case 502:
+            res.statusCode = 502;
+            res.end('502 Bad Gateway');
+            break;
+          case 503:
+            res.statusCode = 503;
+            res.end('503 Service Unavailable');
+            break;
+          case 504:
+            res.statusCode = 504;
+            res.end('504 Gateway Timeout');
+            break;
+          case 505:
+            res.statusCode = 505;
+            res.end('505 HTTP Version Not Supported');
+            break;
+          case 511:
+            res.statusCode = 511;
+            res.end('511 Network Authentication Required');
+            break;
+          default:
+            res.statusCode = error;
+            res.end(error + ' Error');
+        }
       }
     }
 
@@ -89,13 +207,13 @@ export class Server {
               res.end('404 File not found');
           } else {
               res.statusCode = 500;
-              res.end('error ', err.Error);
+              res.end('Error ', err.Error);
           }
       });
     }
 
     function serveResponse(result: any, route: any, res: any): void {
-    // get le retour et gerer les errors et creer resoponse
+    // get le retour et gerer les errors et creer response
     if (result.error) {
       backError(route, res);
     } else {
@@ -114,8 +232,8 @@ export class Server {
           res.end(JSON.stringify(result));
           return;
         } else {
-          Console.Warn('return type not found');
-          backError({ error: 501, message: 'return type not found' }, res);
+          Console.Warn('Return type not found');
+          backError({ error: 501, message: 'Return type not found' }, res);
         }
       }
     }
