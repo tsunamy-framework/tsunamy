@@ -1,5 +1,9 @@
 /** Main configuration */
 export interface Configuration {
+  /** Application language exemple 'en-US' use BCP 47 language tag */
+  locale?: string;
+    /** Application language option exemple {hour12 : false} */
+  localeOption?: any;
   /** Application host name. expemple: localhost */
   hostname: string;
   /** You want use http ? */

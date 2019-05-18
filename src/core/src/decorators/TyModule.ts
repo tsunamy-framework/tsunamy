@@ -25,7 +25,7 @@ export function TyModule<T>(value: ModuleWithProviders): ClassDecorator {
       value.declarations.map( (declaration) => {
         const controllerInstance = injector.resolve(declaration);
         Reflect.defineMetadata('moduleId', value.id, declaration);
-        const routes = Reflect.getMetadata( 'RequestMapping', controllerInstance);
+        const routes = Reflect.getMetadata( 'RequestMapping', controllerInstance) || [];
         routes.map( (route: any) => {
           Router.add(route.path, route.method, route.functionName, controllerInstance);
           });

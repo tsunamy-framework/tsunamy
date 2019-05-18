@@ -1,3 +1,4 @@
+import { Configuration } from './types/Configuration';
 const Reset = '\x1b[0m';
 const Bright = '\x1b[1m';
 const Dim = '\x1b[2m';
@@ -29,8 +30,14 @@ const Warn = FgYellow;
 const Error = FgRed;
 
 export class Console {
+  private static locale: string;
+  private static localeOption: any;
+  static setLocale(CONFIGURATION: Configuration): void {
+    this.locale = CONFIGURATION.locale || '';
+    this.localeOption = CONFIGURATION.localeOption || {};
+  }
   static time(): string {
-    return (new Date()).toLocaleTimeString('en-US');
+    return (new Date()).toLocaleTimeString(this.locale, this.localeOption);
   }
   static Info(s: string) {
     console.log('[' + this.time() + ']' + Info + 'INFO:' + s + Reset);

@@ -21,6 +21,10 @@ export class Server {
   currentServerHttp: any;
 
   bootstrapModule(module: Class, CONFIGURATION: Configuration) {
+    if (!CONFIGURATION.locale) {
+      CONFIGURATION.locale = 'en-US';
+    }
+
     function app(req: any, res: any): void {
       const bodyChunk: Uint8Array[] = [];
       let body: any;
@@ -36,6 +40,7 @@ export class Server {
             serveStaticFiles(req, res);
             return;
           }
+          Console.Info('Call : ' + req.method + ' ' + req.url);
           // call function
           const result = await Router.executeRouteFunction(
             req,
@@ -64,9 +69,11 @@ export class Server {
           } else {
             Console.Err('Status code type is incorrect');
             res.statusCode = 500;
+            Console.Info('Response Code : ' + res.statusCode);
             res.end('500 Server Internal error.');
           }
         } else {
+          Console.Info('Response Code : ' + error);
           switch (error) {
             case 400:
               res.statusCode = 400;
@@ -224,6 +231,7 @@ export class Server {
       } else {
         res.statusCode = 200;
       }
+      Console.Info('Response Code : ' + res.statusCode);
       if (typeof result === 'string' ) {
         res.setHeader('Content-Type', 'text/plain');
         res.end('' + result);
@@ -241,6 +249,7 @@ export class Server {
     }
     }
 
+    Console.setLocale(CONFIGURATION);
     Router.setConfig(CONFIGURATION);
     if (CONFIGURATION.http) {
       this.currentServerHttp = http.createServer(app);
