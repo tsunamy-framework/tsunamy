@@ -1,6 +1,6 @@
 {
   "name": "tsunamy",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "A new typesript framework",
   "keywords": [
     "typescript",
@@ -22,7 +22,7 @@
     "link-init": "npm link",
     "link": "cd ../tsunamyExemple/node_modules && npm link tsunamy",
     "unlink": "cd ../tsunamyExemple/node_modules && npm unlink tsunamy && cd .. && npm i tsunamy",
-    "publish-patch": "npm run build-dev && npm --no-git-tag-version version patch && npm publish && git add. && git commit -m 'update patch' && git push ",
+    "publish-patch": "npm run build-dev && npm --no-git-tag-version version patch && npm publish && git add . && git commit -m 'update patch' && git push ",
     "publish-minor": "npm run build-dev && npm version minor && npm publish",
     "publish-major": "npm run build-dev && npm version major && npm publish"
   },
