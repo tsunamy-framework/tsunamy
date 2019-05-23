@@ -12,7 +12,7 @@ let CONFIGURATION: any;
 
 export class Router {
 
-  static executeRouteFunction(
+  static async executeRouteFunction(
     req: any,
     res: any,
     urlParam: Map<string, any>,
@@ -61,16 +61,18 @@ export class Router {
 
       // execute guards functions if one return false return 403
       let forbidden = false;
-      guards.map( (param: any) => {
-          if (param.functionName === functionVar) {
-              param.guardList.forEach( (functionVar2: any) => {
-                  const canPass = functionVar2(req);
-                  if (!canPass) {
-                      forbidden = true;
-                  }
+      await Promise.all(
+          guards.map( async (param: any) => {
+            if (param.functionName === functionVar) {
+              param.guardList.forEach( async (functionVar2: any) => {
+                const canPass = await functionVar2(req);
+                if (!canPass) {
+                  forbidden = true;
+                }
               });
-          }
-      });
+            }
+          })
+      );
 
       if (forbidden) {
           return { error: 403, message: 'Forbidden' };
