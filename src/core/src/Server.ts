@@ -33,28 +33,51 @@ export class Server {
       }).on('data', (chunk: any) => {
         bodyChunk.push(chunk);
       }).on('end', async () => {
-        body = JSON.parse(Buffer.concat(bodyChunk).toString() || '{}');
-        const route = Router.resolve(req.url, req.method);
-        if (!route.error) {
-          if (route.isStaticFile) {// If static files
-            serveStaticFiles(req, res);
-            return;
+        const origins: string[] = CONFIGURATION.allowOrigin || [];
+        const originHeader = req.headers.origin;
+        const originIsAuthorized = origins.includes(originHeader);
+        if (originHeader && originIsAuthorized) {
+          res.setHeader('Access-Control-Allow-Origin', originHeader);
+        }
+        if (req.method === 'OPTIONS') {
+          // Safari (and potentially other browsers) need content-length 0,
+          //   for 204 or they just hang waiting for a body
+          Console.Info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
+          if (originIsAuthorized) {
+            res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE');
+            res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+            res.setHeader('Content-Length', '0');
+            res.statusCode = 200;
+            res.end();
+          } else {
+            Console.Err('(Pre-flight request) Origin ' + originHeader + ' unknown');
+            res.statusCode = 500;
+            res.end();
           }
-          Console.Info('Call : ' + req.method + ' ' + req.url);
-          // call function
-          const result = await Router.executeRouteFunction(
-            req,
-            res,
-            route.urlParam,
-            route.queryParam,
-            body,
-            route.function,
-            route.controllerInstance);
-          backError(result, res);
-          serveResponse(result, route, res);
-          return;
         } else {
-          backError(route, res);
+          body = JSON.parse(Buffer.concat(bodyChunk).toString() || '{}');
+          const route = Router.resolve(req.url, req.method);
+          if (!route.error) {
+            if (route.isStaticFile) {// If static files
+              serveStaticFiles(req, res);
+              return;
+            }
+            Console.Info('Call : ' + req.method + ' ' + req.url);
+            // call function
+            const result = await Router.executeRouteFunction(
+                req,
+                res,
+                route.urlParam,
+                route.queryParam,
+                body,
+                route.function,
+                route.controllerInstance);
+            backError(result, res);
+            serveResponse(result, route, res);
+            return;
+          } else {
+            backError(route, res);
+          }
         }
       });
     }
