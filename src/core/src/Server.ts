@@ -34,6 +34,10 @@ export class Server {
         bodyChunk.push(chunk);
       }).on('end', async () => {
         body = JSON.parse(Buffer.concat(bodyChunk).toString() || '{}');
+        const origins = CONFIGURATION.allowOrigin;
+        if (origins) {
+          res.setHeader('Access-Control-Allow-Origin', origins);
+        }
         const route = Router.resolve(req.url, req.method);
         if (!route.error) {
           if (route.isStaticFile) {// If static files
