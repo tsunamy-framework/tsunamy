@@ -33,7 +33,7 @@ export class Server {
       }).on('data', (chunk: any) => {
         bodyChunk.push(chunk);
       }).on('end', async () => {
-        const origins: string[] = CONFIGURATION.allowOrigin || [];
+        const origins: string[] = CONFIGURATION.allowOrigins || [];
         const originHeader = req.headers.origin;
         const originIsAuthorized = origins.includes(originHeader);
         if (originHeader && originIsAuthorized) {
@@ -44,8 +44,15 @@ export class Server {
           //   for 204 or they just hang waiting for a body
           Console.Info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
           if (originIsAuthorized) {
-            res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE');
-            res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+
+            const methods: string[] = CONFIGURATION.allowMethods || [];
+            const headers: string[] = CONFIGURATION.allowHeaders || [];
+
+            const methodsAllowed = 'PUT,GET,POST,DELETE' + (methods.length > 0 ? ',' + methods.toString() : '');
+            const headersAllowed = headers.length > 0 ? headers.toString() : '*';
+
+            res.setHeader('Access-Control-Allow-Methods', methodsAllowed);
+            res.setHeader('Access-Control-Allow-Headers', headersAllowed);
             res.setHeader('Content-Length', '0');
             res.statusCode = 200;
             res.end();

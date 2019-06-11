@@ -5,7 +5,9 @@ export interface Configuration {
   /** Application language option exemple {hour12 : false} */
   localeOption?: any;
   /** CORS for cross-origin */
-  allowOrigin?: string[];
+  allowOrigins?: string[];
+  allowMethods?: string[];
+  allowHeaders?: string[];
   /** Application host name. expemple: localhost */
   hostname: string;
   /** You want use http ? */
