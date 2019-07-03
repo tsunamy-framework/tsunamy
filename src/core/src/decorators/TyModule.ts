@@ -25,11 +25,19 @@ export function TyModule<T>(value: ModuleWithProviders): ClassDecorator {
       value.declarations.map( (declaration) => {
         const controllerInstance = injector.resolve(declaration);
         Reflect.defineMetadata('moduleId', value.id, declaration);
-        const routes = Reflect.getMetadata( 'RequestMapping', controllerInstance) || [];
-        routes.map( (route: any) => {
-          Router.add(route.path, route.method, route.functionName, controllerInstance);
-          });
-        });
-      }
-    };
-  }
+        addRoutes(controllerInstance, 'RequestMapping', null);
+        addRoutes(controllerInstance, 'GetMapping', 'GET');
+        addRoutes(controllerInstance, 'PostMapping', 'POST');
+        addRoutes(controllerInstance, 'PutMapping', 'PUT');
+        addRoutes(controllerInstance, 'DeleteMapping', 'DELETE');
+      });
+    }
+  };
+}
+
+function addRoutes(controllerInstance: any, metadataKey: string, method: string | null) {
+  const routes = Reflect.getMetadata(metadataKey, controllerInstance) || [];
+  routes.map( (route: any) => {
+    Router.add(route.path, (method ? method : route.method), route.functionName, controllerInstance);
+  });
+}

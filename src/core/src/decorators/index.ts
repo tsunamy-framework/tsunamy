@@ -7,3 +7,7 @@ export { PathParam } from './PathParam';
 export { QueryParam } from './QueryParam';
 export { Body } from './Body';
 export { Response } from './Response';
+export { GetMapping } from './GetMapping';
+export { PostMapping } from './PostMapping';
+export { PutMapping } from './PutMapping';
+export { DeleteMapping } from './DeleteMapping';
