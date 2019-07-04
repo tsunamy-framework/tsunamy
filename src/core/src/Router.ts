@@ -1,5 +1,5 @@
 
-import { Console } from './Console';
+import { Log } from './Log';
 
 interface RouteObj {
   path: string[];
@@ -81,7 +81,7 @@ export class Router {
           return controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
-      Console.Err('Execute route function, ' + e);
+      Log.Err('Execute route function, ' + e);
       return { error: 500 };
     }
   }
@@ -122,7 +122,7 @@ export class Router {
           }
           n++;
         } while (n < routeList.length);
-        Console.Warn('Route not found');
+        Log.Warn('Route not found');
         return { error: 404 };
       } else { // if Static files
         return {
@@ -131,7 +131,7 @@ export class Router {
         };
       }
     } catch (e) {
-      Console.Err('Resolve error, ' + e);
+      Log.Err('Resolve error, ' + e);
       return { error: 500 };
     }
   }
