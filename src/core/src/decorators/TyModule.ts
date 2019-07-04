@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Injector } from '../Injector';
-import { Router } from '../Router';
+import {Injector} from '../Injector';
+import {Router} from '../Router';
 
 class ModuleWithProviders {
   providers?: any[];
@@ -49,5 +49,9 @@ function addRoutes(controllerInstance: any, metadataKey: string, method: string 
 }
 
 function buildPath(controllerPath: string, routePath: string): string {
-  return controllerPath + (routePath.startsWith('/') ? routePath : '/' + routePath);
+  let routePathCalculated = '';
+  if (routePath && routePath !== '') {
+    routePathCalculated = routePath.startsWith('/') ? routePath : '/' + routePath;
+  }
+  return controllerPath + routePathCalculated;
 }
