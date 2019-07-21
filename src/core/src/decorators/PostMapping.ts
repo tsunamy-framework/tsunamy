@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 
-export function PostMapping(value: any): MethodDecorator {
+export function PostMapping(value?: any): MethodDecorator {
   return (target: any, property: string | symbol, descriptor: PropertyDescriptor) => {
+    value = value || {};
     value.functionName = property;
     const listMapping = Reflect.getMetadata('PostMapping', target) || [];
     listMapping.push(value);

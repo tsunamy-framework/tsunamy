@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 
-export function PutMapping(value: any): MethodDecorator {
+export function PutMapping(value?: any): MethodDecorator {
   return (target: any, property: string | symbol, descriptor: PropertyDescriptor) => {
+    value = value || {};
     value.functionName = property;
     const listMapping = Reflect.getMetadata('PutMapping', target) || [];
     listMapping.push(value);

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Injector } from '../Injector';
-import { Router } from '../Router';
+import {Injector} from '../Injector';
+import {Router} from '../Router';
 
 class ModuleWithProviders {
   providers?: any[];
@@ -36,8 +36,22 @@ export function TyModule<T>(value: ModuleWithProviders): ClassDecorator {
 }
 
 function addRoutes(controllerInstance: any, metadataKey: string, method: string | null) {
+  const metadatas = Reflect.getMetadata('Controller', controllerInstance);
+  let controllerPath = '';
+  if (metadatas && metadatas.path) {
+    controllerPath = metadatas.path;
+  }
+
   const routes = Reflect.getMetadata(metadataKey, controllerInstance) || [];
   routes.map( (route: any) => {
-    Router.add(route.path, (method ? method : route.method), route.functionName, controllerInstance);
+    Router.add(buildPath(controllerPath, route.path), (method ? method : route.method), route.functionName, controllerInstance);
   });
+}
+
+function buildPath(controllerPath: string, routePath: string): string {
+  let routePathCalculated = '';
+  if (routePath && routePath !== '') {
+    routePathCalculated = routePath.startsWith('/') ? routePath : '/' + routePath;
+  }
+  return controllerPath + routePathCalculated;
 }
