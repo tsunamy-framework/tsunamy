@@ -1,4 +1,5 @@
-import { Console } from './Console';
+import {MdQueryParam} from './types/Metadata/MdQueryParam';
+import { Log } from './Log';
 
 interface RouteObj {
   path: string[];
@@ -41,10 +42,14 @@ export class Router {
         varParameters[param.index] = urlParam.get(param.key);
       }
       });
-      queryParam.map( (param: any) => {
-          if (param.functionName === functionVar) {
-              varParameters[param.index] = urlQueryParam.get(param.key);
+      queryParam.map( (param: MdQueryParam) => {
+        if (param.functionName === functionVar) {
+          const valueQueryParam = urlQueryParam.get(param.key);
+          if (param.options && param.options.notNull && valueQueryParam == null) {
+            throw new Error('Missing query param : ' + param.key);
           }
+          varParameters[param.index] = valueQueryParam;
+        }
       });
       body.map( (param: any) => {
           if (param.functionName === functionVar) {
@@ -80,7 +85,7 @@ export class Router {
           return controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
-      Console.Err('Execute route function, ' + e);
+      Log.Err('Execute route function, ' + e);
       return { error: 500 };
     }
   }
@@ -121,7 +126,7 @@ export class Router {
           }
           n++;
         } while (n < routeList.length);
-        Console.Warn('Route not found');
+        Log.Warn('Route not found');
         return { error: 404 };
       } else { // if Static files
         return {
@@ -130,7 +135,7 @@ export class Router {
         };
       }
     } catch (e) {
-      Console.Err('Resolve error, ' + e);
+      Log.Err('Resolve error, ' + e);
       return { error: 500 };
     }
   }

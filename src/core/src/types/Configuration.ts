@@ -22,4 +22,13 @@ export interface Configuration {
   pathAPI: string;
   /** path of the project exemple: __dirname */
   projectDirectory: string;
+  /** Object used to manage log (optionnal) */
+  log?: {
+    /** Level min to log */
+    level?: string;
+    file?: {
+      /** Path of the file */
+      path: string;
+    }
+  };
 }
