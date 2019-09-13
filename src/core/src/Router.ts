@@ -1,4 +1,5 @@
-
+import {Console} from './Console';
+import {MdQueryParam} from './types/Metadata/MdQueryParam';
 import { Log } from './Log';
 
 interface RouteObj {
@@ -42,10 +43,14 @@ export class Router {
         varParameters[param.index] = urlParam.get(param.key);
       }
       });
-      queryParam.map( (param: any) => {
-          if (param.functionName === functionVar) {
-              varParameters[param.index] = urlQueryParam.get(param.key);
+      queryParam.map( (param: MdQueryParam) => {
+        if (param.functionName === functionVar) {
+          const valueQueryParam = urlQueryParam.get(param.key);
+          if (param.options && param.options.notNull && valueQueryParam == null) {
+            throw new Error('Missing query param : ' + param.key);
           }
+          varParameters[param.index] = valueQueryParam;
+        }
       });
       body.map( (param: any) => {
           if (param.functionName === functionVar) {
