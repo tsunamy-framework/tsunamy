@@ -1,4 +1,3 @@
-import {Console} from './Console';
 import {MdQueryParam} from './types/Metadata/MdQueryParam';
 import { Log } from './Log';
 
@@ -169,10 +168,15 @@ export class Router {
   private static extractVarFromQuery(queryWithVarToExtract: string): Map<string, any> {
     const varList = new Map();
     if (queryWithVarToExtract) {
-      const queryWithVar = queryWithVarToExtract.split(',');
+      const queryWithVar = queryWithVarToExtract.split('&');
       let i = queryWithVar.length;
       while (i--) {
-        varList.set(queryWithVar[i].split('=')[0], queryWithVar[i].split('=')[1]);
+        let varValue: string | string[] = queryWithVar[i].split('=')[1];
+        // Manage array value
+        if (varValue && varValue.indexOf(',') > 0) {
+          varValue = varValue.split(',');
+        }
+        varList.set(queryWithVar[i].split('=')[0], varValue);
       }
     }
     return varList;
