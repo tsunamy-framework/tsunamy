@@ -63,6 +63,19 @@ customFunction(@Response() res: any) {
 }
 ```
 
+## Log
+You can log message in console and/or in file. There are 3 levels: INFO, WARN and ERROR
+
+When we log with ERROR level the stack is added to the message.
+```typescript
+try {
+  Log.Info('My message with INFO level');
+  throw new Error()
+} catch (e) {
+  Log.Err('My message with ERROR level');
+}
+```
+
 ## https
 change to https : true in the CONFIGURATION file
 and add the two file to your projet

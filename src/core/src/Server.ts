@@ -1,7 +1,7 @@
 import { Configuration } from './types/Configuration';
 import { Class } from './types/Class';
 import { Router } from './Router';
-import { Console } from './Console';
+import { Log } from './Log';
 import fs from 'fs';
 import https from 'https';
 import http from 'http';
@@ -42,7 +42,7 @@ export class Server {
         if (req.method === 'OPTIONS') {
           // Safari (and potentially other browsers) need content-length 0,
           //   for 204 or they just hang waiting for a body
-          Console.Info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
+          Log.Info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
           if (originIsAuthorized) {
 
             const methods: string[] = CONFIGURATION.allowMethods || [];
@@ -57,7 +57,7 @@ export class Server {
             res.statusCode = 200;
             res.end();
           } else {
-            Console.Err('(Pre-flight request) Origin ' + originHeader + ' unknown');
+            Log.Err('(Pre-flight request) Origin ' + originHeader + ' unknown');
             res.statusCode = 500;
             res.end();
           }
@@ -69,7 +69,7 @@ export class Server {
               serveStaticFiles(req, res);
               return;
             }
-            Console.Info('Call : ' + req.method + ' ' + req.url);
+            Log.Info('Call : ' + req.method + ' ' + req.url);
             // call function
             const result = await Router.executeRouteFunction(
                 req,
@@ -97,13 +97,13 @@ export class Server {
             res.statusCode = error;
             res.end(error + ' ' + route.message);
           } else {
-            Console.Err('Status code type is incorrect');
+            Log.Err('Status code type is incorrect');
             res.statusCode = 500;
-            Console.Info('Response Code : ' + res.statusCode);
+            Log.Info('Response Code : ' + res.statusCode);
             res.end('500 Server Internal error.');
           }
         } else {
-          Console.Info('Response Code : ' + error);
+          Log.Info('Response Code : ' + error);
           switch (error) {
             case 400:
               res.statusCode = 400;
@@ -261,7 +261,7 @@ export class Server {
       } else {
         res.statusCode = 200;
       }
-      Console.Info('Response Code : ' + res.statusCode);
+      Log.Info('Response Code : ' + res.statusCode);
       if (typeof result === 'string' ) {
         res.setHeader('Content-Type', 'text/plain');
         res.end('' + result);
@@ -272,19 +272,20 @@ export class Server {
           res.end(JSON.stringify(result));
           return;
         } else {
-          Console.Warn('Return type not found');
+          Log.Warn('Return type not found');
           backError({ error: 501, message: 'Return type not found' }, res);
         }
       }
     }
     }
 
-    Console.setLocale(CONFIGURATION);
+    Log.setLocale(CONFIGURATION);
+    Log.initLog(CONFIGURATION);
     Router.setConfig(CONFIGURATION);
     if (CONFIGURATION.http) {
       this.currentServerHttp = http.createServer(app);
       this.currentServerHttp.listen(CONFIGURATION.httpPort, CONFIGURATION.hostname, () => {
-        Console.Info(`Tsunamy server running at http://${CONFIGURATION.hostname}:${CONFIGURATION.httpPort}/`);
+        Log.Info(`Tsunamy server running at http://${CONFIGURATION.hostname}:${CONFIGURATION.httpPort}/`);
       });
     }
     if (CONFIGURATION.https) {
@@ -292,9 +293,9 @@ export class Server {
       const certificate = fs.readFileSync(CONFIGURATION.projectDirectory + '/certificate/certificate.pem', 'utf-8');
       this.currentServerHttps = https.createServer({key: privatekey, cert: certificate}, app);
       this.currentServerHttps.listen(CONFIGURATION.httpsPort, CONFIGURATION.hostname, () => {
-        Console.Info(`Tsunamy https server running at https://${CONFIGURATION.hostname}:${CONFIGURATION.httpsPort}/`);
+        Log.Info(`Tsunamy https server running at https://${CONFIGURATION.hostname}:${CONFIGURATION.httpsPort}/`);
       });
     }
-    Console.Blue(Console.LogoWithColor());
+    Log.Blue(Log.LogoWithColor());
   }
 }
