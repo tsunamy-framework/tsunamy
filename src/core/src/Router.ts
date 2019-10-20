@@ -82,7 +82,7 @@ export class Router {
           return { error: 403, message: 'Forbidden' };
       } else {
           // call function
-          return controllerInstance[functionVar].apply(controllerInstance, varParameters);
+          return await controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
       Log.Err('Execute route function, ' + e);

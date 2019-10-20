@@ -233,9 +233,14 @@ export class Server {
       if (req.url === '/') {// default index.html
         req.url = '/index.html';
       }
-      const mimeType: string = MimeTypes[req.url.split('.')[1]];
+      let extension = req.url.substring(req.url.lastIndexOf('.') + 1);
+      if (extension) {
+        extension = extension.toLowerCase();
+      }
+      const mimeType: string = MimeTypes[extension];
       res.writeHead(200, mimeType);
       const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
+      Log.Info('Serve static files : file name : ' + filename + ' mime type ' + mimeType);
       const readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
         readStream.pipe(res);
