@@ -85,7 +85,7 @@ export class Router {
           return await controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
-      Log.Err('Execute route function, ' + e);
+      Log.err('Execute route function, ' + e);
       return { error: 500 };
     }
   }
@@ -126,7 +126,7 @@ export class Router {
           }
           n++;
         } while (n < routeList.length);
-        Log.Warn('Route not found');
+        Log.warn('Route not found');
         return { error: 404 };
       } else { // if Static files
         return {
@@ -135,7 +135,7 @@ export class Router {
         };
       }
     } catch (e) {
-      Log.Err('Resolve error, ' + e);
+      Log.err('Resolve error, ' + e);
       return { error: 500 };
     }
   }

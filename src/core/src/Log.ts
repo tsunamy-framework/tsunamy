@@ -34,6 +34,7 @@ const Warn = FgYellow;
 const Error = FgRed;*/
 
 enum Level {
+  DEBUG,
   INFO,
   WARN,
   ERROR
@@ -46,27 +47,33 @@ export class Log {
   private static logFilePath: string;
   private static logLevel: Level = Level.INFO;
 
-  static setLocale(CONFIGURATION: Configuration): void {
-    this.locale = CONFIGURATION.locale || '';
-    this.localeOption = CONFIGURATION.localeOption || {};
+  static setLocale(configuration: Configuration): void {
+    this.locale = configuration.locale || '';
+    this.localeOption = configuration.localeOption || {};
   }
-  static initLog(CONFIGURATION: Configuration): void {
-    if (CONFIGURATION.log) {
-      if (CONFIGURATION.log.level && Object.values(Level).includes(CONFIGURATION.log.level)) {
-        this.logLevel = Level[CONFIGURATION.log.level as keyof typeof Level];
+
+  /**
+   * Init logging configuration: level, file path...
+   *
+   * @param configuration application's configuration
+   */
+  static initLog(configuration: Configuration): void {
+    if (configuration.log) {
+      if (configuration.log.level && Object.values(Level).includes(configuration.log.level)) {
+        this.logLevel = Level[configuration.log.level as keyof typeof Level];
       }
-      if (CONFIGURATION.log.file) {
-        this.logFilePath = CONFIGURATION.log.file.path || '';
-        this.canAccessLogFile();
+      if (configuration.log.file) {
+        this.logFilePath = configuration.log.file.path || '';
+        this.checkAccessLogFile();
       }
     }
   }
 
-  static Blue(s: string) {
+  static blue(s: string) {
     console.log(FgBlue + s + Reset);
   }
 
-  static Logo(): string {
+  static logo(): string {
     return `
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      _____
@@ -76,7 +83,7 @@ export class Log {
                                  |___|
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`;
   }
-  static LogoWithColor(): string {
+  static logoWithColor(): string {
     return `
     \x1b[34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     \x1b[34m _____     \x1b[37m
@@ -87,13 +94,16 @@ export class Log {
     \x1b[34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`;
   }
 
-  static Info(message: string, ...optionalParams: any[]) {
+  static debug(message: string, ...optionalParams: any[]) {
+    this.log(Level.DEBUG, message, false, optionalParams);
+  }
+  static info(message: string, ...optionalParams: any[]) {
     this.log(Level.INFO, message, false, optionalParams);
   }
-  static Warn(message: string, ...optionalParams: any[]) {
+  static warn(message: string, ...optionalParams: any[]) {
     this.log(Level.WARN, message, false, optionalParams);
   }
-  static Err(message: string, ...optionalParams: any[])  {
+  static err(message: string, ...optionalParams: any[])  {
     this.log(Level.ERROR, message, true, optionalParams);
   }
 
@@ -107,10 +117,10 @@ export class Log {
    */
   private static log(level: Level, message: string, stack: boolean, optionalParams: any[])  {
     const messageWithStack = new Error(message).stack;
-    const messageLogged = stack && messageWithStack ? messageWithStack : message;
+    const messageToLog = stack && messageWithStack ? messageWithStack : message;
     if (this.hasToBeLogged(level)) {
-      this.logInConsole(level, messageLogged, optionalParams);
-      this.logInFile(level, messageLogged, optionalParams);
+      this.logInConsole(level, messageToLog, optionalParams);
+      this.logInFile(level, messageToLog, optionalParams);
     }
   }
   private static logInConsole(level: Level, message: string, optionalParams: any[])  {
@@ -131,8 +141,7 @@ export class Log {
             .join());
         fs.appendFileSync(this.logFilePath, this.time() + this.levelToString(level) + messageLogged + os.EOL);
       } catch (e) {
-        console.log(e);
-        this.Err(e.message);
+        this.err(e.message);
       }
     }
   }
@@ -144,6 +153,8 @@ export class Log {
         return 'INFO: ';
       case Level.WARN:
         return 'WARN: ';
+      case Level.DEBUG:
+        return 'DEBUG: ';
     }
   }
   private static colorFromLevel(level: Level): string {
@@ -154,6 +165,8 @@ export class Log {
         return FgBlue;
       case Level.WARN:
         return FgYellow;
+      case Level.DEBUG:
+        return FgGreen;
     }
   }
   private static hasToBeLogged(level: Level): boolean {
@@ -169,7 +182,7 @@ export class Log {
     try {
       fs.mkdirSync(dir);
     } catch (e) {
-      if (e.code === 'ENOENT'){
+      if (e.code === 'ENOENT') {
         this.recursiveMkdir(path.dirname(dir));
         this.recursiveMkdir(dir);
       }
@@ -178,14 +191,18 @@ export class Log {
       }
     }
   }
-  private static canAccessLogFile() {
+
+  /**
+   * Check if we can access to the log file, if not we stop to log in file
+   * and log only to console
+   */
+  private static checkAccessLogFile() {
     try {
       this.recursiveMkdir(path.dirname(this.logFilePath));
       fs.openSync(this.logFilePath, 'a');
     } catch (e) {
       this.logFileStopped = true;
-      console.log(e);
-      this.Err('Error during log file creation (' + this.logFilePath + '): ' + e.message);
+      this.err('Error during log file creation (' + this.logFilePath + '): ' + e.message);
     }
   }
 }
