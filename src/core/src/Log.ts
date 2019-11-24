@@ -2,6 +2,7 @@ import {Configuration} from './types/Configuration';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import util from 'util';
 
 const Reset = '\x1b[0m';
 const Bright = '\x1b[1m';
@@ -46,6 +47,9 @@ export class Log {
   private static logFileStopped = false;
   private static logFilePath: string;
   private static logLevel: Level = Level.INFO;
+  private static displayCompactObject: boolean | number = true;
+  private static displayDepthObject = Infinity;
+  private static breakLength = Infinity;
 
   static setLocale(configuration: Configuration): void {
     this.locale = configuration.locale || '';
@@ -65,6 +69,15 @@ export class Log {
       if (configuration.log.file) {
         this.logFilePath = configuration.log.file.path || '';
         this.checkAccessLogFile();
+      }
+      if (configuration.log.displayCompactObject != null) {
+        this.displayCompactObject = configuration.log.displayCompactObject;
+      }
+      if (configuration.log.displayDepthObject != null) {
+        this.displayDepthObject = configuration.log.displayDepthObject;
+      }
+      if (configuration.log.breakLength != null) {
+        this.breakLength = configuration.log.breakLength;
       }
     }
   }
@@ -126,7 +139,12 @@ export class Log {
   private static logInConsole(level: Level, message: string, optionalParams: any[])  {
     const toLog: string = this.colorFromLevel(level) + this.time() + this.levelToString(level) + message + Reset;
     if (optionalParams.length) {
-      console.log(toLog, optionalParams);
+      console.log(toLog, util.inspect(optionalParams, {
+        showHidden: false,
+        depth: this.displayDepthObject,
+        breakLength: this.breakLength,
+        compact: this.displayCompactObject
+      }));
     } else {
       console.log(toLog);
     }

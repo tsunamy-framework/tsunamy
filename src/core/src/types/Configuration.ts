@@ -30,5 +30,11 @@ export interface Configuration {
       /** Path of the file */
       path: string;
     }
+    /** True to display object in one line (default: true), used by util.inspect method */
+    displayCompactObject?: boolean | number;
+    /** Specifies the number of times to recurse while formatting object to log (default: Infinity), used by util.inspect method */
+    displayDepthObject?: number;
+    /** The length at which input values are split across multiple lines (default: Infinity), used by util.inspect method */
+    breakLength?: number;
   };
 }
