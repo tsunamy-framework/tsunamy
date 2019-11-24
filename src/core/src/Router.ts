@@ -1,6 +1,7 @@
 import {MdQueryParam} from './types/Metadata/MdQueryParam';
 import { Log } from './Log';
 import {HttpStatus} from './http-status';
+import {ResponseStatusError} from './response-status-error';
 
 interface RouteObj {
   path: string[];
@@ -87,6 +88,9 @@ export class Router {
       }
     } catch (e) {
       Log.err('Execute route function, ' + e);
+      if (e instanceof ResponseStatusError) {
+        return { error: e.statusCode, message: e.message };
+      }
       return { error: HttpStatus.INTERNAL_SERVER_ERROR.getCode() };
     }
   }
