@@ -82,10 +82,10 @@ export class Router {
           return { error: 403, message: 'Forbidden' };
       } else {
           // call function
-          return controllerInstance[functionVar].apply(controllerInstance, varParameters);
+          return await controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
-      Log.Err('Execute route function, ' + e);
+      Log.err('Execute route function, ' + e);
       return { error: 500 };
     }
   }
@@ -126,7 +126,7 @@ export class Router {
           }
           n++;
         } while (n < routeList.length);
-        Log.Warn('Route not found');
+        Log.warn('Route not found');
         return { error: 404 };
       } else { // if Static files
         return {
@@ -135,7 +135,7 @@ export class Router {
         };
       }
     } catch (e) {
-      Log.Err('Resolve error, ' + e);
+      Log.err('Resolve error, ' + e);
       return { error: 500 };
     }
   }

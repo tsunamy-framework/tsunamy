@@ -42,7 +42,7 @@ export class Server {
         if (req.method === 'OPTIONS') {
           // Safari (and potentially other browsers) need content-length 0,
           //   for 204 or they just hang waiting for a body
-          Log.Info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
+          Log.info('(Pre-flight request) Call : ' + req.method + ' ' + req.url);
           if (originIsAuthorized) {
 
             const methods: string[] = CONFIGURATION.allowMethods || [];
@@ -57,7 +57,7 @@ export class Server {
             res.statusCode = 200;
             res.end();
           } else {
-            Log.Err('(Pre-flight request) Origin ' + originHeader + ' unknown');
+            Log.err('(Pre-flight request) Origin ' + originHeader + ' unknown');
             res.statusCode = 500;
             res.end();
           }
@@ -69,7 +69,7 @@ export class Server {
               serveStaticFiles(req, res);
               return;
             }
-            Log.Info('Call : ' + req.method + ' ' + req.url);
+            Log.info('Call : ' + req.method + ' ' + req.url);
             // call function
             const result = await Router.executeRouteFunction(
                 req,
@@ -97,13 +97,13 @@ export class Server {
             res.statusCode = error;
             res.end(error + ' ' + route.message);
           } else {
-            Log.Err('Status code type is incorrect');
+            Log.err('Status code type is incorrect');
             res.statusCode = 500;
-            Log.Info('Response Code : ' + res.statusCode);
+            Log.info('Response Code : ' + res.statusCode);
             res.end('500 Server Internal error.');
           }
         } else {
-          Log.Info('Response Code : ' + error);
+          Log.info('Response Code : ' + error);
           switch (error) {
             case 400:
               res.statusCode = 400;
@@ -233,9 +233,14 @@ export class Server {
       if (req.url === '/') {// default index.html
         req.url = '/index.html';
       }
-      const mimeType: string = MimeTypes[req.url.split('.')[1]];
+      let extension = req.url.substring(req.url.lastIndexOf('.') + 1);
+      if (extension) {
+        extension = extension.toLowerCase();
+      }
+      const mimeType: string = MimeTypes[extension];
       res.writeHead(200, mimeType);
       const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
+      Log.info('Serve static files : file name : ' + filename + ' mime type ' + mimeType);
       const readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
         readStream.pipe(res);
@@ -261,7 +266,7 @@ export class Server {
       } else {
         res.statusCode = 200;
       }
-      Log.Info('Response Code : ' + res.statusCode);
+      Log.info('Response Code : ' + res.statusCode);
       if (typeof result === 'string' ) {
         res.setHeader('Content-Type', 'text/plain');
         res.end('' + result);
@@ -272,7 +277,7 @@ export class Server {
           res.end(JSON.stringify(result));
           return;
         } else {
-          Log.Warn('Return type not found');
+          Log.warn('Return type not found');
           backError({ error: 501, message: 'Return type not found' }, res);
         }
       }
@@ -285,7 +290,7 @@ export class Server {
     if (CONFIGURATION.http) {
       this.currentServerHttp = http.createServer(app);
       this.currentServerHttp.listen(CONFIGURATION.httpPort, CONFIGURATION.hostname, () => {
-        Log.Info(`Tsunamy server running at http://${CONFIGURATION.hostname}:${CONFIGURATION.httpPort}/`);
+        Log.info(`Tsunamy server running at http://${CONFIGURATION.hostname}:${CONFIGURATION.httpPort}/`);
       });
     }
     if (CONFIGURATION.https) {
@@ -293,9 +298,9 @@ export class Server {
       const certificate = fs.readFileSync(CONFIGURATION.projectDirectory + '/certificate/certificate.pem', 'utf-8');
       this.currentServerHttps = https.createServer({key: privatekey, cert: certificate}, app);
       this.currentServerHttps.listen(CONFIGURATION.httpsPort, CONFIGURATION.hostname, () => {
-        Log.Info(`Tsunamy https server running at https://${CONFIGURATION.hostname}:${CONFIGURATION.httpsPort}/`);
+        Log.info(`Tsunamy https server running at https://${CONFIGURATION.hostname}:${CONFIGURATION.httpsPort}/`);
       });
     }
-    Log.Blue(Log.LogoWithColor());
+    Log.blue(Log.logoWithColor());
   }
 }

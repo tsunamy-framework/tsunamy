@@ -21,12 +21,12 @@ if the request starts with `/api` the app checks the routes in the controller, o
 
 supports methods: `GET`, `POST`, `PUT` and `DELETE` with parameters in the route, query or body.
 
-Exemple:
+Example:
 GET `api/custom/url/route/4?queryvar=blabla`
 in the controller
 ```typescript
 @RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})
-customFunction(@PathParam('id') id: number, @QueryParam('queryvar') queryvar: string) {
+customFunction(@PathParam('id') id: number, @QueryParam('queryvar', {notNull: true}) queryvar: string) {
   return queryvar + id;
 }
 ```
@@ -36,6 +36,8 @@ Function can have this parameters :
 @QueryParam('name')
 @Body()
 @Response()
+
+Options can be passed to @QueryParam.
 
 ## Guards
 
