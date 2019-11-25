@@ -1,5 +1,6 @@
 import {MdQueryParam} from './types/Metadata/MdQueryParam';
 import { Log } from './Log';
+import {HttpStatus} from './http-status';
 
 interface RouteObj {
   path: string[];
@@ -79,14 +80,14 @@ export class Router {
       );
 
       if (forbidden) {
-          return { error: 403, message: 'Forbidden' };
+          return { error: HttpStatus.FORBIDDEN.getCode(), message: HttpStatus.FORBIDDEN.getReasonPhrase() };
       } else {
           // call function
           return await controllerInstance[functionVar].apply(controllerInstance, varParameters);
       }
     } catch (e) {
       Log.err('Execute route function, ' + e);
-      return { error: 500 };
+      return { error: HttpStatus.INTERNAL_SERVER_ERROR.getCode() };
     }
   }
 
@@ -127,7 +128,7 @@ export class Router {
           n++;
         } while (n < routeList.length);
         Log.warn('Route not found');
-        return { error: 404 };
+        return { error: HttpStatus.NOT_FOUND.getCode() };
       } else { // if Static files
         return {
           isStaticFile: true,
@@ -136,7 +137,7 @@ export class Router {
       }
     } catch (e) {
       Log.err('Resolve error, ' + e);
-      return { error: 500 };
+      return { error: HttpStatus.INTERNAL_SERVER_ERROR.getCode() };
     }
   }
 
