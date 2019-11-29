@@ -74,7 +74,7 @@ function getById(id: number){ return new Object(); }
 
 @RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})
 customFunction(@PathParam('id') id: number): Promise<ResponseEntity<Object>> {
-  return new ResponseEntity<>(getById(id));
+  return new ResponseEntity<>(HttpStatus.OK, getById(id));
 }
 ```
 
