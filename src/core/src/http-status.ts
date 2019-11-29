@@ -84,17 +84,22 @@ export class HttpStatus {
     this.reasonPhrase = reasonPhrase;
   }
 
+  /**
+   * Get first HttpStatus matching a code
+   *
+   * @param code searched
+   * @return HttpStatus matching code searched
+   */
   static getValueOf(code: number): HttpStatus {
-    return (Object
-        .keys(HttpStatus) as Array<keyof typeof HttpStatus>)
+    return (Object.keys(HttpStatus) as Array<keyof typeof HttpStatus>)
         .filter((key: keyof typeof HttpStatus) => {
-          // Keep only field of type HttpStatus
+          // Keep only static field of object type (HttpStatus)
           return (typeof HttpStatus[key] === 'object');
         })
-        .map(key => {
+        .map((key: keyof typeof HttpStatus) => {
           return HttpStatus[key] as HttpStatus;
         })
-        .filter(status => {
+        .filter((status: HttpStatus) => {
           if (status.getCode() === code) {
             return true;
           }
@@ -104,14 +109,14 @@ export class HttpStatus {
   /**
    * Return the integer value of this status code
    */
-  public getCode(): number {
+  getCode(): number {
     return this.code;
   }
 
   /**
    * Return the reason phrase of this status code
    */
-  public getReasonPhrase(): string {
+  getReasonPhrase(): string {
     return this.reasonPhrase;
   }
 }

@@ -1,7 +1,9 @@
 import {MdQueryParam} from './types/Metadata/MdQueryParam';
-import { Log } from './Log';
+import {Log} from './Log';
 import {HttpStatus} from './http-status';
 import {ResponseStatusError} from './response-status-error';
+import {ResponseEntity} from './response-entity';
+import {IncomingMessage, ServerResponse} from 'http';
 
 interface RouteObj {
   path: string[];
@@ -14,14 +16,13 @@ let CONFIGURATION: any;
 
 export class Router {
 
-  static async executeRouteFunction(
-    req: any,
-    res: any,
-    urlParam: Map<string, any>,
-    urlQueryParam: Map<string, any>,
-    bodyParam: any,
-    functionVar: any,
-    controllerInstance: any ) {
+  static async executeRouteFunction(req: IncomingMessage,
+                                    res: ServerResponse,
+                                    urlParam: Map<string, any>,
+                                    urlQueryParam: Map<string, any>,
+                                    bodyParam: any,
+                                    functionVar: any,
+                                    controllerInstance: any): Promise<ResponseEntity<any>> {
     try {
       // call the function with good arguments
       const pathParam = Reflect.getMetadata('PathParam', controllerInstance ) || [];
@@ -81,17 +82,21 @@ export class Router {
       );
 
       if (forbidden) {
-          return { error: HttpStatus.FORBIDDEN.getCode(), message: HttpStatus.FORBIDDEN.getReasonPhrase() };
+        return ResponseEntity.httpStatus(HttpStatus.FORBIDDEN);
       } else {
           // call function
-          return await controllerInstance[functionVar].apply(controllerInstance, varParameters);
+          const result: any = await controllerInstance[functionVar].apply(controllerInstance, varParameters);
+          if (result instanceof ResponseEntity) {
+            return result;
+          }
+          return new ResponseEntity(HttpStatus.OK, result);
       }
     } catch (e) {
       Log.err('Execute route function, ' + e);
       if (e instanceof ResponseStatusError) {
-        return { error: e.statusCode, message: e.message };
+        return new ResponseEntity(e.statusCode, e.message);
       }
-      return { error: HttpStatus.INTERNAL_SERVER_ERROR.getCode() };
+      return ResponseEntity.internalServerError();
     }
   }
 
