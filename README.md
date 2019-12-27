@@ -65,6 +65,19 @@ customFunction(@Response() res: any) {
 }
 ```
 
+## ResponseEntity
+
+This type is used to http response (http code + body). It's a class with generic body's type.
+
+```typescript
+function getById(id: number){ return new Object(); }
+
+@RequestMapping({ path:"/custom/url/route/{id}", method: 'GET'})
+customFunction(@PathParam('id') id: number): Promise<ResponseEntity<Object>> {
+  return new ResponseEntity<>(HttpStatus.OK, getById(id));
+}
+```
+
 ## Log
 You can log message in console and/or in file. There are 3 levels: INFO, WARN and ERROR
 

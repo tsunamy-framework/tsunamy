@@ -6,6 +6,7 @@ import fs from 'fs';
 import https from 'https';
 import http, {IncomingMessage, ServerResponse} from 'http';
 import {HttpStatus} from './http-status';
+import {ResponseEntity} from './response-entity';
 
 const MimeTypes: any = {
   html: 'text/html',
@@ -93,8 +94,7 @@ export class Server {
                 body,
                 route.function,
                 route.controllerInstance);
-            backError(result, res);
-            serveResponse(result, route, res);
+            serveResponse(result, res);
             return;
           } else {
             backError(route, res);
@@ -157,32 +157,17 @@ export class Server {
       });
     }
 
-    function serveResponse(result: any, route: any, res: any): void {
-    // get le retour et gerer les errors et creer response
-    if (result.error) {
-      backError(route, res);
-    } else {
-      if (result.code) {
-        res.statusCode = result.code;
-      } else {
-        res.statusCode = HttpStatus.OK.getCode();
-      }
-      Log.info('Response Code : ' + res.statusCode);
-      if (typeof result === 'string' ) {
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('' + result);
-        return;
-      } else {
-        if (typeof result === 'object' ) {
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(result));
-          return;
-        } else {
-          Log.warn('Return type not found');
-          backError({ error: HttpStatus.NOT_IMPLEMENTED.getCode(), message: 'Return type not found' }, res);
-        }
-      }
-    }
+    /**
+     * Fill ServerResponse value from application's returned value
+     *
+     * @param result route's returned value
+     * @param res server response
+     */
+    function serveResponse(result: ResponseEntity<any>, res: ServerResponse): void {
+      Log.info('Server result', result);
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = result.getCode();
+      res.end(JSON.stringify(result.getBody()));
     }
 
     Log.setLocale(CONFIGURATION);
