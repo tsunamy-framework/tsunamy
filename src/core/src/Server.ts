@@ -131,16 +131,17 @@ export class Server {
     }
 
     function serveStaticFiles(req: any, res: any): void {
-      if (req.url === '/') {// default index.html
-        req.url = '/index.html';
+      let urlDecoded = decodeURIComponent(req.url);
+      if (urlDecoded === '/') {// default index.html
+        urlDecoded = '/index.html';
       }
-      let extension = req.url.substring(req.url.lastIndexOf('.') + 1);
+      let extension = urlDecoded.substring(urlDecoded.lastIndexOf('.') + 1);
       if (extension) {
         extension = extension.toLowerCase();
       }
       const mimeType: string = MimeTypes[extension];
       res.writeHead(HttpStatus.OK.getCode(), mimeType);
-      const filename = CONFIGURATION.projectDirectory + '/public' + req.url;
+      const filename = CONFIGURATION.projectDirectory + '/public' + urlDecoded;
       Log.info('Serve static files : file name : ' + filename + ' mime type ' + mimeType);
       const readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
