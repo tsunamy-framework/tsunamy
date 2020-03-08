@@ -148,13 +148,13 @@ export class Server {
         readStream.pipe(res);
       });
       readStream.on('error', (err: any) => {
-          if (err.code === 'ENOENT') {
-              res.statusCode = HttpStatus.NOT_FOUND.getCode();
-              res.end(HttpStatus.NOT_FOUND.getReasonPhrase());
-          } else {
-              res.statusCode = HttpStatus.INTERNAL_SERVER_ERROR.getCode();
-              res.end(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-          }
+        if (err.code === 'ENOENT') {
+          res.writeHead(HttpStatus.NOT_FOUND.getCode(), HttpStatus.NOT_FOUND.getReasonPhrase());
+          res.end();
+        } else {
+          res.writeHead(HttpStatus.INTERNAL_SERVER_ERROR.getCode(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+          res.end();
+        }
       });
     }
 
