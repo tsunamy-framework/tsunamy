@@ -140,11 +140,11 @@ export class Server {
         extension = extension.toLowerCase();
       }
       const mimeType: string = MimeTypes[extension];
-      res.writeHead(HttpStatus.OK.getCode(), mimeType);
       const filename = CONFIGURATION.projectDirectory + '/public' + urlDecoded;
       Log.info('Serve static files : file name : ' + filename + ' mime type ' + mimeType);
       const readStream = fs.createReadStream(filename);
       readStream.on('open', () => {
+        res.writeHead(HttpStatus.OK.getCode(), mimeType);
         readStream.pipe(res);
       });
       readStream.on('error', (err: any) => {
